@@ -1,6 +1,7 @@
 #include "Pieza.h"
+using namespace std;
 
-Pieza::Pieza(bool blanca, Coordenada pos, std::wstring simbolo)
+Pieza::Pieza(bool blanca, Coordenada pos, wstring simbolo)
     :esBlanca(blanca), posicion(pos), simbolo(simbolo)
 {
 }
@@ -20,7 +21,7 @@ Coordenada Pieza::getPosicion() const
     return posicion;
 }
 
-std::wstring Pieza::getSimbolo() const
+wstring Pieza::getSimbolo() const
 {
     return simbolo;
 }

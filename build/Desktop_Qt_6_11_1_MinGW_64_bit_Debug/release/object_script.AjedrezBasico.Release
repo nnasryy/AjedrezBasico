@@ -1,11 +1,12 @@
 release/Caballo.o
 release/Coordenada.o
+release/HistorialMovimientos.o
+release/Partida.o
 release/Peon.o
 release/Pieza.o
+release/RankingJugadores.o
 release/Rey.o
 release/Tablero.o
 release/Torre.o
 release/jugador.o
 release/main.o
-release/partida.o
-release/rankingjugadores.o

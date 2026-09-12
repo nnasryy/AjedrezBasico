@@ -9,31 +9,31 @@ const char DELIMITADOR = '|';
 
 RankingJugadores::RankingJugadores()
 {
-    capacidad = 4;              // empieza con espacio para 4 jugadores
+    capacidad = 4;
     cantidad = 0;
     jugadores = new Jugador[capacidad];
 }
 
 RankingJugadores::~RankingJugadores()
 {
-    delete[] jugadores; // delete[] porque es un arreglo, no un solo objeto
+    delete[] jugadores;
 }
 
 void RankingJugadores::crecerSiNecesario()
 {
     if (cantidad < capacidad) {
-        return; // todavía hay espacio, no hace falta crecer
+        return;
     }
 
-    int nuevaCapacidad = capacidad * 2; // igual que hace vector internamente
+    int nuevaCapacidad = capacidad * 2;
     Jugador* nuevoArreglo = new Jugador[nuevaCapacidad];
 
     for (int i = 0; i < cantidad; i++) {
-        nuevoArreglo[i] = jugadores[i]; // copia lo que ya había
+        nuevoArreglo[i] = jugadores[i];
     }
 
-    delete[] jugadores;         // libera el arreglo viejo
-    jugadores = nuevoArreglo;   // apunta al nuevo, más grande
+    delete[] jugadores;
+    jugadores = nuevoArreglo;
     capacidad = nuevaCapacidad;
 }
 
@@ -41,16 +41,16 @@ int RankingJugadores::buscarPosicionPorNombre(string nombre) const
 {
     for (int i = 0; i < cantidad; i++) {
         if (jugadores[i].getNombre() == nombre) {
-            return i; // encontrado en la posición i
+            return i;
         }
     }
-    return -1; // no encontrado (equivalente a string::npos, pero para nuestro caso)
+    return -1;
 }
 
 void RankingJugadores::registrarJugador(string nombre)
 {
     if (buscarPosicionPorNombre(nombre) != -1) {
-        return; // ya existe: no hace nada, simplemente se usará su registro existente
+        return;
     }
 
     crecerSiNecesario();
@@ -62,7 +62,7 @@ void RankingJugadores::cargarDesdeArchivo(string nombreArchivo)
 {
     ifstream archivo(nombreArchivo);
     if (!archivo.is_open()) {
-        return; // primera vez que se ejecuta el programa, no hay archivo todavía
+        return;
     }
 
     string linea;
@@ -99,7 +99,7 @@ void RankingJugadores::actualizarResultado(string nombre, char resultado)
 {
     int pos = buscarPosicionPorNombre(nombre);
     if (pos == -1) {
-        return; // el jugador no existe, no hay nada que actualizar
+        return;
     }
 
     if (resultado == 'V') jugadores[pos].registrarVictoria();
@@ -116,7 +116,7 @@ bool RankingJugadores::eliminarJugador(string nombre)
         return false;
     }
 
-    // desplaza todos los elementos después de "pos" una posición a la izquierda
+
     for (int i = pos; i < cantidad - 1; i++) {
         jugadores[i] = jugadores[i + 1];
     }
@@ -126,9 +126,9 @@ bool RankingJugadores::eliminarJugador(string nombre)
     return true;
 }
 
+//Burbuja
 void RankingJugadores::ordenarPorVictorias()
 {
-    // burbuja: descendente, más victorias primero
     for (int i = 0; i < cantidad - 1; i++) {
         for (int j = 0; j < cantidad - 1 - i; j++) {
             if (jugadores[j].getVictorias() < jugadores[j + 1].getVictorias()) {

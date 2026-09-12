@@ -1,11 +1,12 @@
 debug/Caballo.o
 debug/Coordenada.o
+debug/HistorialMovimientos.o
+debug/Partida.o
 debug/Peon.o
 debug/Pieza.o
+debug/RankingJugadores.o
 debug/Rey.o
 debug/Tablero.o
 debug/Torre.o
 debug/jugador.o
 debug/main.o
-debug/partida.o
-debug/rankingjugadores.o

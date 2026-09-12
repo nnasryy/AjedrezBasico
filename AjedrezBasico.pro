@@ -6,24 +6,26 @@ CONFIG -= qt
 SOURCES += \
         Caballo.cpp \
         Coordenada.cpp \
+        HistorialMovimientos.cpp \
+        Partida.cpp \
         Peon.cpp \
         Pieza.cpp \
+        RankingJugadores.cpp \
         Rey.cpp \
         Tablero.cpp \
         Torre.cpp \
         jugador.cpp \
-        main.cpp \
-        partida.cpp \
-        rankingjugadores.cpp
+        main.cpp
 
 HEADERS += \
     Caballo.h \
     Coordenada.h \
+    HistorialMovimientos.h \
+    Partida.h \
     Peon.h \
     Pieza.h \
+    RankingJugadores.h \
     Rey.h \
     Tablero.h \
     Torre.h \
-    jugador.h \
-    partida.h \
-    rankingjugadores.h
+    jugador.h

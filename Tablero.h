@@ -21,6 +21,8 @@ public:
     bool moverPieza(Coordenada origen, Coordenada destino);
     bool caminoLibre(Coordenada origen, Coordenada destino) const;
     void colocarPieza(Pieza* pieza, Coordenada pos);
+    Coordenada buscarRey(bool blanca) const;
+    bool estaEnJaque(bool colorRey);
     void vaciarTablero();
 };
 

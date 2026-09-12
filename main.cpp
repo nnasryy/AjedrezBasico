@@ -1,11 +1,15 @@
 #include <iostream>
 #include "Tablero.h"
-#include "rankingjugadores.h"
-#include "partida.h"
+#include "RankingJugadores.h"
+#include "HistorialMovimientos.h"
+#include "Partida.h"
+#include "Coordenada.h"
 
 #ifdef _WIN32
 #include <io.h>
 #include <fcntl.h>
+#else
+#include <locale>
 #endif
 
 using namespace std;
@@ -38,13 +42,42 @@ int leerCoordenada(const wstring &mensaje)
     }
 }
 
+int leerOpcionMenu(const wstring &mensaje, int minimo, int maximo)
+{
+    int valor;
+
+    while (true) {
+        wcout << mensaje;
+        wcin >> valor;
+
+        if (wcin.fail()) {
+            wcin.clear();
+            wcin.ignore(1000, L'\n');
+            wcout << L"Entrada invalida. Ingresa solo un numero.\n";
+            continue;
+        }
+
+        if (valor < minimo || valor > maximo) {
+            wcout << L"Opcion fuera de rango.\n";
+            continue;
+        }
+
+        return valor;
+    }
+}
+
 wstring leerNombre(const wstring &mensaje)
 {
     wstring nombre;
     wcout << mensaje;
-    wcin.ignore(1000, L'\n'); // descarta cualquier salto de línea pendiente del input anterior
-    getline(wcin, nombre);
+    wcin >> nombre;
     return nombre;
+}
+wstring coordenadaATexto(Coordenada c)
+{
+    wchar_t columna = L'a' + c.columna; // 0->a, 1->b, ..., 7->h
+    int fila = c.fila + 1;              // 0->1, 1->2, ..., 7->8
+    return wstring(1, columna) + to_wstring(fila);
 }
 
 void mostrarMenuPrincipal()
@@ -54,10 +87,9 @@ void mostrarMenuPrincipal()
     wcout << L"2. Cargar partida guardada\n";
     wcout << L"3. Ver ranking de jugadores\n";
     wcout << L"4. Salir\n";
-    wcout << L"Elige una opcion: ";
 }
-
-void jugarPartida(Tablero &tablero, bool &turnoBlanco, wstring nombreBlancas, wstring nombreNegras)
+void jugarPartida(Tablero &tablero, bool &turnoBlanco, wstring nombreBlancas, wstring nombreNegras,
+                  HistorialMovimientos &historial)
 {
     bool salirPartida = false;
 
@@ -65,16 +97,16 @@ void jugarPartida(Tablero &tablero, bool &turnoBlanco, wstring nombreBlancas, ws
         tablero.imprimir();
 
         wstring nombreTurno = turnoBlanco ? nombreBlancas : nombreNegras;
-        wcout << L"\nTurno de " << (turnoBlanco ? L"Blancas" : L"Negras")
-              << L" (" << nombreTurno << L")\n";
+        wcout << L"\nTurno de " << nombreTurno
+              << L" (" << (turnoBlanco ? L"Blancas" : L"Negras") << L")\n";
         wcout << L"(ingresa 0 en la fila origen para ver opciones de partida)\n";
 
         int fo = leerCoordenada(L"Fila origen (1-8): ");
 
         if (fo == -1) {
-            wcout << L"\n1. Guardar y continuar\n2. Guardar y salir al menu\n3. Salir sin guardar\n4. Volver a jugar\nOpcion: ";
-            int opcion;
-            wcin >> opcion;
+            int opcion = leerOpcionMenu(
+                L"\n1. Guardar partida\n2. Ver historial\n3. Salir\n4. Volver a jugar\nOpcion: ",
+                1, 4);
 
             if (opcion == 1) {
                 Partida p;
@@ -82,15 +114,16 @@ void jugarPartida(Tablero &tablero, bool &turnoBlanco, wstring nombreBlancas, ws
                 wcout << L"Partida guardada.\n";
                 continue;
             } else if (opcion == 2) {
-                Partida p;
-                p.guardarPartida(tablero, turnoBlanco, "partida_guardada.txt");
-                salirPartida = true;
+                historial.imprimirHistorial();
+                wcout << L"\nPresiona Enter para continuar...";
+                wcin.ignore();
+                wcin.get();
                 continue;
             } else if (opcion == 3) {
                 salirPartida = true;
                 continue;
             } else {
-                continue; // opción 4 o cualquier otra: vuelve a jugar
+                continue;
             }
         }
 
@@ -103,12 +136,23 @@ void jugarPartida(Tablero &tablero, bool &turnoBlanco, wstring nombreBlancas, ws
 
         Pieza* pieza = tablero.getPiezaEn(origen);
         if (pieza == nullptr || pieza->getEsBlanca() != turnoBlanco) {
-            wcout << L"Movimiento invalido: no es tu pieza o casilla vacia.\n";
+            wcout << L"Movimiento invalido! Intenta de nuevo.\n";
             continue;
         }
 
+        bool huboCaptura = tablero.hayPiezaEn(destino);
+
         if (tablero.moverPieza(origen, destino)) {
+            wstring descripcion = (turnoBlanco ? L"Blancas: " : L"Negras: ")
+            + coordenadaATexto(origen) + L" -> " + coordenadaATexto(destino)
+                + (huboCaptura ? L" (captura)" : L"");
+            historial.registrarMovimiento(descripcion);
+
             turnoBlanco = !turnoBlanco;
+
+            if (tablero.estaEnJaque(turnoBlanco)) {
+                wcout << L"\n¡JAQUE al Rey " << (turnoBlanco ? L"Blanco" : L"Negro") << L"!\n";
+            }
         } else {
             wcout << L"Movimiento invalido, intenta de nuevo.\n";
         }
@@ -120,6 +164,11 @@ int main()
 #ifdef _WIN32
     _setmode(_fileno(stdout), _O_U16TEXT);
     _setmode(_fileno(stdin), _O_U16TEXT);
+#else
+    std::setlocale(LC_ALL, "");
+    std::locale::global(std::locale(""));
+    std::wcout.imbue(std::locale());
+    std::wcin.imbue(std::locale());
 #endif
 
     RankingJugadores ranking;
@@ -129,35 +178,35 @@ int main()
 
     while (!salirPrograma) {
         mostrarMenuPrincipal();
-        int opcionMenu;
-        wcin >> opcionMenu;
+        int opcionMenu = leerOpcionMenu(L"Elige una opcion: ", 1, 4);
 
         if (opcionMenu == 1) {
             wstring nombreBlancas = leerNombre(L"Nombre del Jugador 1 (Blancas): ");
             wstring nombreNegras  = leerNombre(L"Nombre del Jugador 2 (Negras): ");
 
-            // convertir a string simple para RankingJugadores (que guarda std::string)
             string nombreBStr(nombreBlancas.begin(), nombreBlancas.end());
             string nombreNStr(nombreNegras.begin(), nombreNegras.end());
             ranking.registrarJugador(nombreBStr);
             ranking.registrarJugador(nombreNStr);
+            ranking.guardarEnArchivo("ranking.txt");
 
             Tablero tablero;
             tablero.inicializar();
             bool turnoBlanco = true;
-            jugarPartida(tablero, turnoBlanco, nombreBlancas, nombreNegras);
+            HistorialMovimientos historial;
+            jugarPartida(tablero, turnoBlanco, nombreBlancas, nombreNegras, historial);
 
         } else if (opcionMenu == 2) {
             Tablero tablero;
             Partida p;
+            HistorialMovimientos historial;
             bool turnoBlanco;
             if (p.cargarPartida(tablero, turnoBlanco, "partida_guardada.txt")) {
                 wcout << L"Partida cargada.\n";
-                jugarPartida(tablero, turnoBlanco, L"Blancas", L"Negras"); // nombres genéricos al cargar
+                jugarPartida(tablero, turnoBlanco, L"Blancas", L"Negras", historial);
             } else {
                 wcout << L"No hay partida guardada.\n";
             }
-
         } else if (opcionMenu == 3) {
             ranking.ordenarPorVictorias();
             ranking.imprimirRanking();

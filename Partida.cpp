@@ -6,7 +6,6 @@
 #include <fstream>
 #include <sstream>
 #include <filesystem>
-#include <string>
 #include <iostream>
 
 using namespace std;
@@ -36,18 +35,18 @@ void Partida::guardarPartida(Tablero &tablero, bool turnoBlanco, string nombreAr
 
 bool Partida::cargarPartida(Tablero &tablero, bool &turnoBlanco, string nombreArchivo)
 {
-  ifstream archivo(nombreArchivo);
+    ifstream archivo(nombreArchivo);
     if (!archivo.is_open()) {
-        return false; // el archivo no existe
+        return false;
     }
 
     tablero.vaciarTablero();
 
-    std::string linea;
-    std::getline(archivo, linea);
+    string linea;
+    getline(archivo, linea);
     turnoBlanco = (linea == "BLANCAS");
 
-    while (std::getline(archivo, linea)) {
+    while (getline(archivo, linea)) {
         stringstream ss(linea);
         string tipo, color, filaStr, colStr;
 
@@ -56,8 +55,8 @@ bool Partida::cargarPartida(Tablero &tablero, bool &turnoBlanco, string nombreAr
         getline(ss, filaStr, ';');
         getline(ss, colStr, ';');
 
-        int f = std::stoi(filaStr);
-        int c = std::stoi(colStr);
+        int f = stoi(filaStr);
+        int c = stoi(colStr);
         bool blanca = (color == "B");
         Coordenada pos(f, c);
 
@@ -80,13 +79,13 @@ void Partida::listarPartidas()
 {
     wcout << L"Partidas guardadas:\n";
     for (const auto &entrada : filesystem::directory_iterator(".")) {
-        if (entrada.path().extension() == ".partida") {
+        if (entrada.path().extension() == ".txt") {
             wcout << L" - " << entrada.path().filename().wstring() << L"\n";
         }
     }
 }
 
-bool Partida::eliminarPartida(string nombreArchivo)
+bool Partida::eliminarPartida(std::string nombreArchivo)
 {
-    return filesystem::remove(nombreArchivo);
+    return std::filesystem::remove(nombreArchivo);
 }

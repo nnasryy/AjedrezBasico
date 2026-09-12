@@ -20,11 +20,11 @@ bool Torre::esMovimientoValido(Coordenada destino, Tablero &tablero) const
     }
 
     if (!tablero.caminoLibre(posicion, destino)) {
-        return false; // hay una pieza bloqueando el camino
+        return false;
     }
 
     if (tablero.hayPiezaEn(destino) && tablero.getPiezaEn(destino)->getEsBlanca() == esBlanca) {
-        return false; // no puedes capturar tu propia pieza
+        return false;
     }
 
     return true;

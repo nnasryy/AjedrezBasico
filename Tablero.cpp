@@ -5,6 +5,7 @@
 #include "Peon.h"
 #include "Caballo.h"
 
+using namespace std;
 
 Tablero::Tablero()
 {
@@ -63,7 +64,7 @@ bool Tablero::hayPiezaEn(Coordenada c) const
 bool Tablero::esEnemiga(Coordenada c, bool colorPropio) const
 {
     Pieza* p = getPiezaEn(c);
-    if (p == nullptr) return false; // casilla vacía no es "enemiga"
+    if (p == nullptr) return false;
     return p->getEsBlanca() != colorPropio;
 }
 
@@ -72,23 +73,22 @@ bool Tablero::moverPieza(Coordenada origen, Coordenada destino)
     Pieza* pieza = getPiezaEn(origen);
 
     if (pieza == nullptr) {
-        return false; // no hay pieza en el origen
+        return false;
     }
 
     if (!pieza->esMovimientoValido(destino, *this)) {
-        return false; // el movimiento no es valido
+        return false;
     }
 
-    // si hay pieza enemiga en destino, se "captura" (se libera su memoria)
+
     if (hayPiezaEn(destino)) {
         delete casillas[destino.fila][destino.columna];
     }
 
-    // mover el puntero de la casilla origen a la casilla destino
     casillas[destino.fila][destino.columna] = pieza;
     casillas[origen.fila][origen.columna] = nullptr;
 
-    pieza->setPosicion(destino); // muy importante: actualizar la posición interna
+    pieza->setPosicion(destino);
 
     return true;
 }
@@ -100,14 +100,14 @@ void Tablero::imprimir() const
         for (int c = 0; c < 8; c++) {
             Pieza* p = casillas[f][c];
             if (p == nullptr) {
-                std::wcout << L". ";
+                wcout << L". ";
             } else {
-                std::wcout << p->getSimbolo() << L" "; // <-- cambia esta línea temporalmente
+                wcout << p->getSimbolo() << L" ";
             }
         }
-        std::wcout << std::endl;
+        wcout << std::endl;
     }
-    std::wcout << L"  1 2 3 4 5 6 7 8" << std::endl;
+    wcout << L"  1 2 3 4 5 6 7 8" << std::endl;
 }
 
 bool Tablero::caminoLibre(Coordenada origen, Coordenada destino) const
@@ -125,19 +125,55 @@ bool Tablero::caminoLibre(Coordenada origen, Coordenada destino) const
 
     Coordenada actual(origen.fila + pasoFila, origen.columna + pasoColumna);
 
-    // avanza casilla por casilla hasta llegar justo antes del destino
     while (!(actual == destino)) {
         if (hayPiezaEn(actual)) {
-            return false; // hay algo bloqueando el camino
+            return false;
         }
         actual = Coordenada(actual.fila + pasoFila, actual.columna + pasoColumna);
     }
 
-    return true; // no encontró obstáculos en el camino
+    return true;
 }
 void Tablero::colocarPieza(Pieza* pieza, Coordenada pos)
 {
     casillas[pos.fila][pos.columna] = pieza;
+}
+Coordenada Tablero::buscarRey(bool blanca) const
+{
+    for (int f = 0; f < 8; f++) {
+        for (int c = 0; c < 8; c++) {
+            Pieza* p = casillas[f][c];
+            if (p != nullptr && p->getEsBlanca() == blanca && p->getTipo() == 'R') {
+                return Coordenada(f, c);
+            }
+        }
+    }
+    return Coordenada();
+}
+
+bool Tablero::estaEnJaque(bool colorRey)
+{
+    Coordenada posRey = buscarRey(colorRey);
+
+    for (int f = 0; f < 8; f++) {
+        for (int c = 0; c < 8; c++) {
+            Pieza* p = casillas[f][c];
+
+            if (p == nullptr) {
+                continue;
+            }
+
+            if (p->getEsBlanca() == colorRey) {
+                continue;
+            }
+
+            if (p->esMovimientoValido(posRey, *this)) {
+                return true; // encontramos una amenaza real
+            }
+        }
+    }
+
+    return false; // ninguna pieza enemiga puede llegar hasta el Rey
 }
 
 void Tablero::vaciarTablero()

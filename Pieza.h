@@ -1,32 +1,30 @@
 #ifndef PIEZA_H
 #define PIEZA_H
 
-#include "coordenada.h"
+#include "Coordenada.h"
 #include <string>
 
 using namespace std;
-class Tablero; // declaracion
+class Tablero;
 
 class Pieza{
 protected:
     bool esBlanca;
     Coordenada posicion;
-    wstring simbolo; //Para guardar el caracter
+    wstring simbolo;
     //Unicode ♔♜
 
 public:
     Pieza(bool blanca, Coordenada pos, wstring simbolo);
-    virtual ~Pieza(); //destructor virtual
-    virtual char getTipo() const = 0; // 'R', 'T', 'P' o 'C'
+    virtual ~Pieza();
+    virtual char getTipo() const = 0;
 
     bool getEsBlanca() const;
     Coordenada getPosicion() const;
     wstring getSimbolo() const;
     void setPosicion(Coordenada nueva);
 
-    virtual bool esMovimientoValido(
-        Coordenada destino,
-        Tablero &tablero)
+    virtual bool esMovimientoValido(Coordenada destino, Tablero &tablero)
         const = 0;
 };
 
