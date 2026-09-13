@@ -30,3 +30,9 @@ void Pieza::setPosicion(Coordenada nueva)
 {
     posicion = nueva;
 }
+bool Pieza::getSeHaMovido() const {
+    return seHaMovido;
+}
+void Pieza::marcarComoMovida() {
+    seHaMovido = true;
+}

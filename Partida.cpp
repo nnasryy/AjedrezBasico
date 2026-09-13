@@ -13,10 +13,12 @@ using namespace std;
 Partida::Partida() {}
 Partida::~Partida() {}
 
-void Partida::guardarPartida(Tablero &tablero, bool turnoBlanco, string nombreArchivo)
+void Partida::guardarPartida(Tablero &tablero, bool turnoBlanco, string nombreBlancas, string nombreNegras, string nombreArchivo)
 {
     ofstream archivo(nombreArchivo);
 
+    archivo << nombreBlancas << "\n";
+    archivo << nombreNegras << "\n";
     archivo << (turnoBlanco ? "BLANCAS" : "NEGRAS") << "\n";
 
     for (int f = 0; f < 8; f++) {
@@ -33,7 +35,7 @@ void Partida::guardarPartida(Tablero &tablero, bool turnoBlanco, string nombreAr
     archivo.close();
 }
 
-bool Partida::cargarPartida(Tablero &tablero, bool &turnoBlanco, string nombreArchivo)
+bool Partida::cargarPartida(Tablero &tablero, bool &turnoBlanco, string &nombreBlancas, string &nombreNegras, string nombreArchivo)
 {
     ifstream archivo(nombreArchivo);
     if (!archivo.is_open()) {
@@ -43,10 +45,16 @@ bool Partida::cargarPartida(Tablero &tablero, bool &turnoBlanco, string nombreAr
     tablero.vaciarTablero();
 
     string linea;
-    getline(archivo, linea);
+
+    if (!getline(archivo, nombreBlancas)) return false;
+    if (!getline(archivo, nombreNegras)) return false;
+
+    if (!getline(archivo, linea)) return false;
     turnoBlanco = (linea == "BLANCAS");
 
     while (getline(archivo, linea)) {
+        if (linea.empty()) continue;
+
         stringstream ss(linea);
         string tipo, color, filaStr, colStr;
 
@@ -55,19 +63,27 @@ bool Partida::cargarPartida(Tablero &tablero, bool &turnoBlanco, string nombreAr
         getline(ss, filaStr, ';');
         getline(ss, colStr, ';');
 
-        int f = stoi(filaStr);
-        int c = stoi(colStr);
-        bool blanca = (color == "B");
-        Coordenada pos(f, c);
+        if (tipo.empty() || filaStr.empty() || colStr.empty()) continue;
 
-        Pieza* nueva = nullptr;
-        if (tipo == "R") nueva = new Rey(blanca, pos);
-        else if (tipo == "T") nueva = new Torre(blanca, pos);
-        else if (tipo == "P") nueva = new Peon(blanca, pos);
-        else if (tipo == "C") nueva = new Caballo(blanca, pos);
+        try {
+            int f = stoi(filaStr);
+            int c = stoi(colStr);
+            if (f < 0 || f > 7 || c < 0 || c > 7) continue;
 
-        if (nueva != nullptr) {
-            tablero.colocarPieza(nueva, pos);
+            bool blanca = (color == "B");
+            Coordenada pos(f, c);
+
+            Pieza* nueva = nullptr;
+            if (tipo == "R") nueva = new Rey(blanca, pos);
+            else if (tipo == "T") nueva = new Torre(blanca, pos);
+            else if (tipo == "P") nueva = new Peon(blanca, pos);
+            else if (tipo == "C") nueva = new Caballo(blanca, pos);
+
+            if (nueva != nullptr) {
+                tablero.colocarPieza(nueva, pos);
+            }
+        } catch (const exception &e) {
+            continue;
         }
     }
 

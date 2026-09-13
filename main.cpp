@@ -4,6 +4,8 @@
 #include "HistorialMovimientos.h"
 #include "Partida.h"
 #include "Coordenada.h"
+#include <cwctype>
+#include <fstream>
 
 #ifdef _WIN32
 #include <io.h>
@@ -42,6 +44,32 @@ int leerCoordenada(const wstring &mensaje)
     }
 }
 
+int leerColumna(const wstring &mensaje)
+{
+    wchar_t letra;
+
+    while (true) {
+        wcout << mensaje;
+        wcin >> letra;
+
+        if (wcin.fail()) {
+            wcin.clear();
+            wcin.ignore(1000, L'\n');
+            wcout << L"Entrada invalida. Ingresa una letra de la a a la h.\n";
+            continue;
+        }
+
+        letra = towlower(letra);
+
+        if (letra < L'a' || letra > L'h') {
+            wcout << L"La columna debe estar entre a y h.\n";
+            continue;
+        }
+
+        return letra - L'a';
+    }
+}
+
 int leerOpcionMenu(const wstring &mensaje, int minimo, int maximo)
 {
     int valor;
@@ -73,10 +101,32 @@ wstring leerNombre(const wstring &mensaje)
     wcin >> nombre;
     return nombre;
 }
+bool archivoExiste(string nombreArchivo)
+{
+    ifstream archivo(nombreArchivo);
+    return archivo.is_open(); // si se pudo abrir, es porque ya existe
+}
+
+string pedirNombrePartidaUnico()
+{
+    while (true) {
+        wstring nombreW = leerNombre(L"Nombre para esta partida (debe ser unico): ");
+        string nombre(nombreW.begin(), nombreW.end());
+        string archivo = "partida_" + nombre + ".txt";
+
+        if (archivoExiste(archivo)) {
+            wcout << L"Ya existe una partida con ese nombre. Elige otro.\n";
+            continue;
+        }
+
+        return archivo;
+    }
+}
+
 wstring coordenadaATexto(Coordenada c)
 {
-    wchar_t columna = L'a' + c.columna; // 0->a, 1->b, ..., 7->h
-    int fila = c.fila + 1;              // 0->1, 1->2, ..., 7->8
+    wchar_t columna = L'a' + c.columna;
+    int fila = c.fila + 1;
     return wstring(1, columna) + to_wstring(fila);
 }
 
@@ -89,7 +139,7 @@ void mostrarMenuPrincipal()
     wcout << L"4. Salir\n";
 }
 void jugarPartida(Tablero &tablero, bool &turnoBlanco, wstring nombreBlancas, wstring nombreNegras,
-                  HistorialMovimientos &historial)
+                  HistorialMovimientos &historial, RankingJugadores &ranking, string archivoPartida)
 {
     bool salirPartida = false;
 
@@ -97,7 +147,8 @@ void jugarPartida(Tablero &tablero, bool &turnoBlanco, wstring nombreBlancas, ws
         tablero.imprimir();
 
         wstring nombreTurno = turnoBlanco ? nombreBlancas : nombreNegras;
-        wcout << L"\nTurno de " << nombreTurno
+        wstring simboloTurno = turnoBlanco ? L"♔" : L"♚";
+        wcout << L"\nTurno de " << nombreTurno << L" " << simboloTurno
               << L" (" << (turnoBlanco ? L"Blancas" : L"Negras") << L")\n";
         wcout << L"(ingresa 0 en la fila origen para ver opciones de partida)\n";
 
@@ -105,31 +156,38 @@ void jugarPartida(Tablero &tablero, bool &turnoBlanco, wstring nombreBlancas, ws
 
         if (fo == -1) {
             int opcion = leerOpcionMenu(
-                L"\n1. Guardar partida\n2. Ver historial\n3. Salir\n4. Volver a jugar\nOpcion: ",
-                1, 4);
+                L"\n1. Guardar partida\n2. Ver historial\n3. Declarar empate\n4. Salir\n5. Volver a jugar\nOpcion: ",
+                1, 5);
 
             if (opcion == 1) {
                 Partida p;
-                p.guardarPartida(tablero, turnoBlanco, "partida_guardada.txt");
+                string blancasStr(nombreBlancas.begin(), nombreBlancas.end());
+                string negrasStr(nombreNegras.begin(), nombreNegras.end());
+                p.guardarPartida(tablero, turnoBlanco, blancasStr, negrasStr, archivoPartida);
                 wcout << L"Partida guardada.\n";
-                continue;
             } else if (opcion == 2) {
                 historial.imprimirHistorial();
                 wcout << L"\nPresiona Enter para continuar...";
                 wcin.ignore();
                 wcin.get();
-                continue;
             } else if (opcion == 3) {
+                wcout << L"Partida terminada en empate.\n";
+                string blancasStr(nombreBlancas.begin(), nombreBlancas.end());
+                string negrasStr(nombreNegras.begin(), nombreNegras.end());
+                ranking.actualizarResultado(blancasStr, 'E');
+                ranking.actualizarResultado(negrasStr, 'E');
+                ranking.guardarEnArchivo("ranking.txt");
                 salirPartida = true;
-                continue;
-            } else {
-                continue;
+            } else if (opcion == 4) {
+                salirPartida = true;
             }
+            continue; // siempre vuelve al inicio del ciclo tras manejar el submenú
         }
 
-        int co = leerCoordenada(L"Columna origen (1-8): ");
+        // Este bloque ahora SÍ se ejecuta cuando fo es una fila válida (fuera del if anterior)
+        int co = leerColumna(L"Columna origen (a-h): ");
         int fd = leerCoordenada(L"Fila destino (1-8): ");
-        int cd = leerCoordenada(L"Columna destino (1-8): ");
+        int cd = leerColumna(L"Columna destino (a-h): ");
 
         Coordenada origen(fo, co);
         Coordenada destino(fd, cd);
@@ -140,13 +198,32 @@ void jugarPartida(Tablero &tablero, bool &turnoBlanco, wstring nombreBlancas, ws
             continue;
         }
 
-        bool huboCaptura = tablero.hayPiezaEn(destino);
+        Pieza* piezaEnDestino = tablero.getPiezaEn(destino);
+        bool seCapturoRey = (piezaEnDestino != nullptr && piezaEnDestino->getTipo() == 'R');
+        bool huboCaptura = (piezaEnDestino != nullptr);
 
         if (tablero.moverPieza(origen, destino)) {
             wstring descripcion = (turnoBlanco ? L"Blancas: " : L"Negras: ")
             + coordenadaATexto(origen) + L" -> " + coordenadaATexto(destino)
                 + (huboCaptura ? L" (captura)" : L"");
             historial.registrarMovimiento(descripcion);
+
+            if (seCapturoRey) {
+                wstring ganador = turnoBlanco ? nombreBlancas : nombreNegras;
+                wcout << L"\n¡" << ganador << L" gano la partida capturando al Rey!\n";
+
+                string ganadorStr(ganador.begin(), ganador.end());
+                string perdedorStr = turnoBlanco
+                                         ? string(nombreNegras.begin(), nombreNegras.end())
+                                         : string(nombreBlancas.begin(), nombreBlancas.end());
+
+                ranking.actualizarResultado(ganadorStr, 'V');
+                ranking.actualizarResultado(perdedorStr, 'D');
+                ranking.guardarEnArchivo("ranking.txt");
+
+                salirPartida = true;
+                continue;
+            }
 
             turnoBlanco = !turnoBlanco;
 
@@ -158,7 +235,6 @@ void jugarPartida(Tablero &tablero, bool &turnoBlanco, wstring nombreBlancas, ws
         }
     }
 }
-
 int main()
 {
 #ifdef _WIN32
@@ -179,33 +255,42 @@ int main()
     while (!salirPrograma) {
         mostrarMenuPrincipal();
         int opcionMenu = leerOpcionMenu(L"Elige una opcion: ", 1, 4);
-
         if (opcionMenu == 1) {
             wstring nombreBlancas = leerNombre(L"Nombre del Jugador 1 (Blancas): ");
             wstring nombreNegras  = leerNombre(L"Nombre del Jugador 2 (Negras): ");
 
             string nombreBStr(nombreBlancas.begin(), nombreBlancas.end());
             string nombreNStr(nombreNegras.begin(), nombreNegras.end());
+
             ranking.registrarJugador(nombreBStr);
             ranking.registrarJugador(nombreNStr);
             ranking.guardarEnArchivo("ranking.txt");
+
+            string archivoPartida = pedirNombrePartidaUnico();
 
             Tablero tablero;
             tablero.inicializar();
             bool turnoBlanco = true;
             HistorialMovimientos historial;
-            jugarPartida(tablero, turnoBlanco, nombreBlancas, nombreNegras, historial);
+            jugarPartida(tablero, turnoBlanco, nombreBlancas, nombreNegras, historial, ranking, archivoPartida);
 
         } else if (opcionMenu == 2) {
+            wstring nombreArchivoW = leerNombre(L"Nombre de la partida a cargar: ");
+            string nombreArchivo("partida_" + string(nombreArchivoW.begin(), nombreArchivoW.end()) + ".txt");
+
             Tablero tablero;
             Partida p;
             HistorialMovimientos historial;
             bool turnoBlanco;
-            if (p.cargarPartida(tablero, turnoBlanco, "partida_guardada.txt")) {
+            string nombreBlancasStr, nombreNegrasStr;
+
+            if (p.cargarPartida(tablero, turnoBlanco, nombreBlancasStr, nombreNegrasStr, nombreArchivo)) {
                 wcout << L"Partida cargada.\n";
-                jugarPartida(tablero, turnoBlanco, L"Blancas", L"Negras", historial);
+                wstring nombreBlancasW(nombreBlancasStr.begin(), nombreBlancasStr.end());
+                wstring nombreNegrasW(nombreNegrasStr.begin(), nombreNegrasStr.end());
+                jugarPartida(tablero, turnoBlanco, nombreBlancasW, nombreNegrasW, historial, ranking, nombreArchivo);
             } else {
-                wcout << L"No hay partida guardada.\n";
+                wcout << L"No se encontro una partida con ese nombre.\n";
             }
         } else if (opcionMenu == 3) {
             ranking.ordenarPorVictorias();

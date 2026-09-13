@@ -9,10 +9,10 @@ public:
     Partida();
     ~Partida();
 
-    void guardarPartida(Tablero &tablero, bool turnoBlanco, std::string nombreArchivo); // Create/Update
-    bool cargarPartida(Tablero &tablero, bool &turnoBlanco, std::string nombreArchivo);  // Read
+    void guardarPartida(Tablero &tablero, bool turnoBlanco, string nombreBlancas, string nombreNegras, string nombreArchivo);
+    bool cargarPartida(Tablero &tablero, bool &turnoBlanco, string &nombreBlancas, string &nombreNegras, string nombreArchivo);
     void listarPartidas();                                                              // Read (listado)
-    bool eliminarPartida(std::string nombreArchivo);                                     // Delete
+    bool eliminarPartida(string nombreArchivo);                                     // Delete
 };
 
 #endif //PARTTIDA_H

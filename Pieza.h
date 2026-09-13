@@ -12,6 +12,7 @@ protected:
     bool esBlanca;
     Coordenada posicion;
     wstring simbolo;
+    bool seHaMovido;
     //Unicode ♔♜
 
 public:
@@ -23,6 +24,8 @@ public:
     Coordenada getPosicion() const;
     wstring getSimbolo() const;
     void setPosicion(Coordenada nueva);
+    bool getSeHaMovido() const;
+    void marcarComoMovida();
 
     virtual bool esMovimientoValido(Coordenada destino, Tablero &tablero)
         const = 0;

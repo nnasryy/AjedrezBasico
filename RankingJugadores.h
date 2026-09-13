@@ -7,8 +7,8 @@ using namespace std;
 
 class RankingJugadores {
 private:
-    Jugador* jugadores;   // arreglo dinámico (nuestro "vector" manual)
-    int cantidad;         // cuántos jugadores hay realmente
+    Jugador* jugadores;   // arreglo dinámico
+    int cantidad;         // cuántos jugadores
     int capacidad;        // cuánto espacio hay reservado
 
     void crecerSiNecesario(); // duplica el arreglo si se llena

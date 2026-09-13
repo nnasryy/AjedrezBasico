@@ -23,6 +23,13 @@ bool Peon::esMovimientoValido(Coordenada destino, Tablero &tablero) const
         // el avance recto solo es válido si la casilla destino está vacía
         return !tablero.hayPiezaEn(destino);
     }
+    bool esAvanceDoble = (!seHaMovido && difColumna == 0 && difFila == 2 * direccion
+                          && !tablero.hayPiezaEn(Coordenada(posicion.fila + direccion, posicion.columna))
+                          && !tablero.hayPiezaEn(destino));
+
+    if (esAvanceDoble) {
+        return true;
+    }
 
     if (esCapturaDiagonal) {
         // la diagonal solo es válida si hay una pieza ENEMIGA en el destino

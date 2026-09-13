@@ -2,6 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <exception>
 
 using namespace std;
 
@@ -9,7 +10,7 @@ const char DELIMITADOR = '|';
 
 RankingJugadores::RankingJugadores()
 {
-    capacidad = 4;
+    capacidad = 5;
     cantidad = 0;
     jugadores = new Jugador[capacidad];
 }
@@ -62,11 +63,15 @@ void RankingJugadores::cargarDesdeArchivo(string nombreArchivo)
 {
     ifstream archivo(nombreArchivo);
     if (!archivo.is_open()) {
-        return;
+        return; // no hay archivo todavía, es normal la primera vez que se ejecuta el programa
     }
 
     string linea;
     while (getline(archivo, linea)) {
+        if (linea.empty()) {
+            continue; // ignora líneas vacías
+        }
+
         stringstream ss(linea);
         string nombre, vStr, dStr, eStr;
 
@@ -75,9 +80,21 @@ void RankingJugadores::cargarDesdeArchivo(string nombreArchivo)
         getline(ss, dStr, DELIMITADOR);
         getline(ss, eStr, DELIMITADOR);
 
-        crecerSiNecesario();
-        jugadores[cantidad] = Jugador(nombre, stoi(vStr), stoi(dStr),stoi(eStr));
-        cantidad++;
+        if (nombre.empty() || vStr.empty() || dStr.empty() || eStr.empty()) {
+            continue; // línea incompleta o corrupta, la salta sin tronar el programa
+        }
+
+        try {
+            int victorias = stoi(vStr);
+            int derrotas = stoi(dStr);
+            int empates = stoi(eStr);
+
+            crecerSiNecesario();
+            jugadores[cantidad] = Jugador(nombre, victorias, derrotas, empates);
+            cantidad++;
+        } catch (const exception &e) {
+            continue; // el texto no era un número válido, se ignora esa línea
+        }
     }
     archivo.close();
 }

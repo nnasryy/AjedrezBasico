@@ -7,6 +7,7 @@
 class Tablero{
 private:
     Pieza* casillas[8][8];
+    void asignarCasilla(Pieza** casilla, Pieza* nuevaPieza);
 
 public:
     Tablero();
