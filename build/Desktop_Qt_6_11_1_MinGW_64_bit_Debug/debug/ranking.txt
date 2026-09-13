@@ -1,2 +1,2 @@
-nasry|0|0|0
-janai|0|0|0
+nasry|4|0|0
+janai|0|4|0

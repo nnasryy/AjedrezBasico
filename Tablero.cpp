@@ -72,35 +72,42 @@ bool Tablero::esEnemiga(Coordenada c, bool colorPropio) const
 bool Tablero::moverPieza(Coordenada origen, Coordenada destino)
 {
     Pieza* pieza = getPiezaEn(origen);
+
     if (pieza == nullptr) {
         return false;
     }
+
     if (!pieza->esMovimientoValido(destino, *this)) {
         return false;
     }
-    asignarCasilla(&casillas[destino.fila][destino.columna], pieza);
+
+    // Paso 1: si hay algo en el destino (captura), se libera ANTES de sobreescribir
+    if (hayPiezaEn(destino)) {
+        delete casillas[destino.fila][destino.columna];
+        casillas[destino.fila][destino.columna] = nullptr; // evita punteros colgantes
+    }
+
+    // Paso 2: mover la pieza al destino y limpiar el origen
+    casillas[destino.fila][destino.columna] = pieza;
     casillas[origen.fila][origen.columna] = nullptr;
 
     pieza->setPosicion(destino);
     pieza->marcarComoMovida();
 
-    pieza->marcarComoMovida();
+    // Paso 3: coronación, SOLO después de que el movimiento y la captura ya se resolvieron
     if (pieza->getTipo() == 'P') {
         int filaFinal = pieza->getEsBlanca() ? 7 : 0;
+
         if (destino.fila == filaFinal) {
             bool color = pieza->getEsBlanca();
+
+            // Aquí "casillas[destino]" es exactamente "pieza" (el peon), nada más
+            Pieza* nuevaTorre = new Torre(color, destino);
             delete casillas[destino.fila][destino.columna];
-            casillas[destino.fila][destino.columna] = new Torre(color, destino);
+            casillas[destino.fila][destino.columna] = nuevaTorre;
         }
     }
-    if (pieza->getTipo() == 'P') {
-        int filaFinal = pieza->getEsBlanca() ? 7 : 0;
-        if (destino.fila == filaFinal) {
-            bool color = pieza->getEsBlanca();
-            delete casillas[destino.fila][destino.columna];
-            casillas[destino.fila][destino.columna] = new Torre(color, destino);
-        }
-    }
+
     return true;
 }
 
