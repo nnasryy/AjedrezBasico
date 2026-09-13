@@ -118,17 +118,27 @@ void Tablero::imprimir() const
     for (int f = 7; f >= 0; f--) {
         wcout << (f + 1) << L" ";
         for (int c = 0; c < 8; c++) {
+            bool esClara = (f + c) % 2 == 0;
+
+            if (esClara) {
+                wcout << L"\033[48;2;195;195;199m"; // fondo #c3c3c7
+            } else {
+                wcout << L"\033[48;2;94;93;94m";    // fondo #5e5d5e
+            }
+            wcout << L"\033[30m"; // texto en negro para contraste
+
             Pieza* p = casillas[f][c];
             if (p == nullptr) {
-                cout<<" "<<endl;
-                wcout << L". ";
+                wcout << L"  ";
             } else {
                 wcout << p->getSimbolo() << L" ";
             }
+
+            wcout << L"\033[0m"; // reinicia el color para no manchar el resto de la línea
         }
         wcout << endl;
     }
-    wcout << L"  a b c d e f g h" << std::endl;
+    wcout << L"  a b c d e f g h" << endl;
 }
 
 bool Tablero::caminoLibre(Coordenada origen, Coordenada destino) const
@@ -196,7 +206,50 @@ bool Tablero::estaEnJaque(bool colorRey)
 
     return false; // ninguna pieza enemiga puede llegar hasta el Rey
 }
+bool Tablero::intentarEnroque(bool blancas, bool ladoRey)
+{
+    int fila = blancas ? 0 : 7;
+    Coordenada posRey(fila, 4);
+    Pieza* rey = getPiezaEn(posRey);
 
+    if (rey == nullptr || rey->getTipo() != 'R' || rey->getSeHaMovido()) {
+        return false;
+    }
+
+    int columnaTorre = ladoRey ? 7 : 0;
+    Coordenada posTorre(fila, columnaTorre);
+    Pieza* torre = getPiezaEn(posTorre);
+
+    if (torre == nullptr || torre->getTipo() != 'T' || torre->getSeHaMovido()) {
+        return false;
+    }
+
+    int paso = ladoRey ? 1 : -1;
+    for (int c = 4 + paso; c != columnaTorre; c += paso) {
+        if (hayPiezaEn(Coordenada(fila, c))) {
+            return false; // hay algo en medio, no se puede enrocar
+        }
+    }
+
+    if (estaEnJaque(blancas)) {
+        return false; // no se puede enrocar estando en jaque
+    }
+
+    int columnaNuevaRey = ladoRey ? 6 : 2;
+    int columnaNuevaTorre = ladoRey ? 5 : 3;
+
+    casillas[fila][4] = nullptr;
+    casillas[fila][columnaNuevaRey] = rey;
+    rey->setPosicion(Coordenada(fila, columnaNuevaRey));
+    rey->marcarComoMovida();
+
+    casillas[fila][columnaTorre] = nullptr;
+    casillas[fila][columnaNuevaTorre] = torre;
+    torre->setPosicion(Coordenada(fila, columnaNuevaTorre));
+    torre->marcarComoMovida();
+
+    return true;
+}
 void Tablero::vaciarTablero()
 {
     for (int f = 0; f < 8; f++) {

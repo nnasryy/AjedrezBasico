@@ -6,15 +6,18 @@
 #include "Coordenada.h"
 #include <cwctype>
 #include <fstream>
+#include <string>
 
 #ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
 #include <io.h>
 #include <fcntl.h>
 #else
 #include <locale>
 #endif
-
 using namespace std;
+
 
 int leerCoordenada(const wstring &mensaje)
 {
@@ -156,8 +159,8 @@ void jugarPartida(Tablero &tablero, bool &turnoBlanco, wstring nombreBlancas, ws
 
         if (fo == -1) {
             int opcion = leerOpcionMenu(
-                L"\n1. Guardar partida\n2. Ver historial\n3. Declarar empate\n4. Salir\n5. Volver a jugar\nOpcion: ",
-                1, 5);
+                L"\n1. Guardar partida\n2. Ver historial\n3. Declarar empate\n4. Salir\n5. Volver a jugar\n6. Hacer Enroque\nOpcion: ",
+                1, 6);
 
             if (opcion == 1) {
                 Partida p;
@@ -180,6 +183,16 @@ void jugarPartida(Tablero &tablero, bool &turnoBlanco, wstring nombreBlancas, ws
                 salirPartida = true;
             } else if (opcion == 4) {
                 salirPartida = true;
+            } else if (opcion == 6) { // "Enroque"
+                int lado = leerOpcionMenu(L"1. Enroque corto (lado del Rey)\n2. Enroque largo (lado de la Dama)\nOpcion: ", 1, 2);
+                bool exito = tablero.intentarEnroque(turnoBlanco, lado == 1);
+                if (exito) {
+                    wcout << L"Enroque realizado.\n";
+                    turnoBlanco = !turnoBlanco;
+                } else {
+                    wcout << L"No se puede enrocar en este momento.\n";
+                }
+                continue;
             }
             continue; // siempre vuelve al inicio del ciclo tras manejar el submenú
         }
@@ -240,6 +253,12 @@ int main()
 #ifdef _WIN32
     _setmode(_fileno(stdout), _O_U16TEXT);
     _setmode(_fileno(stdin), _O_U16TEXT);
+
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    DWORD dwMode = 0;
+    GetConsoleMode(hOut, &dwMode);
+    dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+    SetConsoleMode(hOut, dwMode);
 #else
     std::setlocale(LC_ALL, "");
     std::locale::global(std::locale(""));
