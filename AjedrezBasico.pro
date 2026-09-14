@@ -5,7 +5,9 @@ CONFIG -= qt
 
 SOURCES += \
         Caballo.cpp \
+        ControladorJuego.cpp \
         Coordenada.cpp \
+        EntradaSalida.cpp \
         HistorialMovimientos.cpp \
         Partida.cpp \
         Peon.cpp \
@@ -19,7 +21,9 @@ SOURCES += \
 
 HEADERS += \
     Caballo.h \
+    ControladorJuego.h \
     Coordenada.h \
+    EntradaSalida.h \
     HistorialMovimientos.h \
     Partida.h \
     Peon.h \

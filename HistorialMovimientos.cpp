@@ -53,6 +53,19 @@ void HistorialMovimientos::imprimirHistorial() const
     }
 }
 
+int HistorialMovimientos::getCantidad() const
+{
+    return cantidad;
+}
+
+wstring HistorialMovimientos::obtenerMovimiento(int indice) const
+{
+    if (indice < 0 || indice >= cantidad) {
+        return L"";
+    }
+    return movimientos[indice];
+}
+
 void HistorialMovimientos::limpiar()
 {
     delete[] movimientos;

@@ -1,2 +1,5 @@
-nasry|4|0|0
+nasry|6|1|0
+will|1|0|0
 janai|0|4|0
+joseph|0|1|0
+jo|0|1|0

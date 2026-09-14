@@ -19,6 +19,8 @@ public:
 
     void registrarMovimiento(wstring descripcion);
     void imprimirHistorial() const;
+    int getCantidad() const;
+    wstring obtenerMovimiento(int indice) const;
     void limpiar(); // para empezar una partida nueva sin arrastrar el historial anterior
 };
 

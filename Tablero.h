@@ -19,7 +19,7 @@ public:
     Pieza* getPiezaEn(Coordenada c)const;
     bool hayPiezaEn(Coordenada c) const;
     bool esEnemiga(Coordenada c, bool colorPropio)const;
-    bool moverPieza(Coordenada origen, Coordenada destino);
+    bool moverPieza(Coordenada origen, Coordenada destino, char promocionElegida = 'T');
     bool caminoLibre(Coordenada origen, Coordenada destino) const;
     void colocarPieza(Pieza* pieza, Coordenada pos);
     Coordenada buscarRey(bool blanca) const;

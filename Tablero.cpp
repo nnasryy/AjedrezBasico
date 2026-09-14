@@ -69,7 +69,7 @@ bool Tablero::esEnemiga(Coordenada c, bool colorPropio) const
 }
 //como parametro el struct que tiene fila y columna coordenada
 //y evaluaremos el origen y el destino para saber si se puede mover
-bool Tablero::moverPieza(Coordenada origen, Coordenada destino)
+bool Tablero::moverPieza(Coordenada origen, Coordenada destino, char promocionElegida)
 {
     Pieza* pieza = getPiezaEn(origen);
 
@@ -100,11 +100,16 @@ bool Tablero::moverPieza(Coordenada origen, Coordenada destino)
 
         if (destino.fila == filaFinal) {
             bool color = pieza->getEsBlanca();
+            Pieza* nuevaPieza = nullptr;
 
-            // Aquí "casillas[destino]" es exactamente "pieza" (el peon), nada más
-            Pieza* nuevaTorre = new Torre(color, destino);
+            if (promocionElegida == 'C') {
+                nuevaPieza = new Caballo(color, destino);
+            } else {
+                nuevaPieza = new Torre(color, destino); // por defecto 'T', o cualquier valor no reconocido
+            }
+
             delete casillas[destino.fila][destino.columna];
-            casillas[destino.fila][destino.columna] = nuevaTorre;
+            casillas[destino.fila][destino.columna] = nuevaPieza;
         }
     }
 

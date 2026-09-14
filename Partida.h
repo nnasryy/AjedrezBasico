@@ -3,6 +3,7 @@
 
 #include <string>
 #include "Tablero.h"
+#include "HistorialMovimientos.h"
 
 class Partida {
 public:
@@ -11,7 +12,7 @@ public:
 
     void guardarPartida(Tablero &tablero, bool turnoBlanco, string nombreBlancas, string nombreNegras, string nombreArchivo);
     bool cargarPartida(Tablero &tablero, bool &turnoBlanco, string &nombreBlancas, string &nombreNegras, string nombreArchivo);
-    void listarPartidas();                                                              // Read (listado)
+    void listarPartidas(HistorialMovimientos &listado);                                                              // Read (listado)
     bool eliminarPartida(string nombreArchivo);                                     // Delete
 };
 

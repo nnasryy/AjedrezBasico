@@ -1,5 +1,7 @@
 debug/Caballo.o
+debug/ControladorJuego.o
 debug/Coordenada.o
+debug/EntradaSalida.o
 debug/HistorialMovimientos.o
 debug/Partida.o
 debug/Peon.o

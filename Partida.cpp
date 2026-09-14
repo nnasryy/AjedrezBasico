@@ -91,16 +91,24 @@ bool Partida::cargarPartida(Tablero &tablero, bool &turnoBlanco, string &nombreB
     return true;
 }
 
-void Partida::listarPartidas()
+void Partida::listarPartidas(HistorialMovimientos &listado)
 {
-    wcout << L"Partidas guardadas:\n";
     for (const auto &entrada : filesystem::directory_iterator(".")) {
-        if (entrada.path().extension() == ".txt") {
-            wcout << L" - " << entrada.path().filename().wstring() << L"\n";
+        if (!entrada.is_regular_file()) {
+            continue; // ignora carpetas, solo interesan archivos
+        }
+
+        string nombreArchivo = entrada.path().filename().string();
+
+        bool empiezaConPartida = (nombreArchivo.rfind("partida_", 0) == 0);
+        bool terminaEnTxt = (entrada.path().extension() == ".txt");
+
+        if (empiezaConPartida && terminaEnTxt) {
+            wstring wnombre(nombreArchivo.begin(), nombreArchivo.end());
+            listado.registrarMovimiento(wnombre);
         }
     }
 }
-
 bool Partida::eliminarPartida(std::string nombreArchivo)
 {
     return std::filesystem::remove(nombreArchivo);

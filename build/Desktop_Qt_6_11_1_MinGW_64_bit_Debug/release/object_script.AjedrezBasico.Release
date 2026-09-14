@@ -1,5 +1,7 @@
 release/Caballo.o
+release/ControladorJuego.o
 release/Coordenada.o
+release/EntradaSalida.o
 release/HistorialMovimientos.o
 release/Partida.o
 release/Peon.o
