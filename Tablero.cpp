@@ -262,6 +262,7 @@ bool Tablero::intentarEnroque(bool blancas, bool ladoRey)
 
     return true;
 }
+
 void Tablero::vaciarTablero()
 {
     for (int f = 0; f < 8; f++) {

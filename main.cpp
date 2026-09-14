@@ -80,25 +80,30 @@ int main()
                 wcout << L"\nPartidas disponibles:\n";
                 listado.imprimirHistorial();
 
-                wstring nombreArchivoW = EntradaSalida::leerUsername(L"\nNombre de la partida a cargar: ");
+                wstring nombreArchivoW = EntradaSalida::leerUsername(L"\nNombre de la partida a cargar (0 para cancelar): partida_");
                 string nombreArchivo("partida_" + string(nombreArchivoW.begin(), nombreArchivoW.end()) + ".txt");
-
-                Tablero tablero;
-                Partida p;
-                HistorialMovimientos historial;
-                bool turnoBlanco;
-                string nombreBlancasStr, nombreNegrasStr;
-
-                if (p.cargarPartida(tablero, turnoBlanco, nombreBlancasStr, nombreNegrasStr, nombreArchivo)) {
-                    wcout << L"\n  > Partida cargada.\n";
-                    wstring nombreBlancasW(nombreBlancasStr.begin(), nombreBlancasStr.end());
-                    wstring nombreNegrasW(nombreNegrasStr.begin(), nombreNegrasStr.end());
-
-                    ControladorJuego juego(tablero, turnoBlanco, nombreBlancasW, nombreNegrasW,
-                                           historial, ranking, nombreArchivo);
-                    juego.jugar();
+                if (nombreArchivoW == L"0") {
+                    wcout << L"\n  > Operacion cancelada.\n";
                 } else {
-                    wcout << L"\n  > No se encontro una partida con ese nombre.\n";
+                    string nombreArchivo("partida_" + string(nombreArchivoW.begin(), nombreArchivoW.end()) + ".txt");
+
+                    Tablero tablero;
+                    Partida p;
+                    HistorialMovimientos historial;
+                    bool turnoBlanco;
+                    string nombreBlancasStr, nombreNegrasStr;
+
+                    if (p.cargarPartida(tablero, turnoBlanco, nombreBlancasStr, nombreNegrasStr, nombreArchivo)) {
+                        wcout << L"\n  > Partida cargada.\n";
+                        wstring nombreBlancasW(nombreBlancasStr.begin(), nombreBlancasStr.end());
+                        wstring nombreNegrasW(nombreNegrasStr.begin(), nombreNegrasStr.end());
+
+                        ControladorJuego juego(tablero, turnoBlanco, nombreBlancasW, nombreNegrasW,
+                                               historial, ranking, nombreArchivo);
+                        juego.jugar();
+                    } else {
+                        wcout << L"\n  > No se encontro una partida con ese nombre.\n";
+                    }
                 }
             }
 

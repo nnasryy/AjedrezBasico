@@ -109,6 +109,13 @@ bool ControladorJuego::intentarEnroque(Coordenada origen, Coordenada destino)
 
     if (exito) {
         wcout << L"\n  > Enroque realizado.\n";
+
+        wstring descripcion = (turnoBlanco ? L"Blancas: " : L"Negras: ")
+                              + EntradaSalida::coordenadaATexto(origen) + L" -> "
+                              + EntradaSalida::coordenadaATexto(destino)
+                              + (ladoRey ? L" (enroque corto)" : L" (enroque largo)");
+        historial.registrarMovimiento(descripcion);
+
         turnoBlanco = !turnoBlanco;
     } else {
         wcout << L"\n  > No se puede enrocar en este momento.\n";

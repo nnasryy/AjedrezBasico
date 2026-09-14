@@ -2,7 +2,7 @@
 using namespace std;
 
 Pieza::Pieza(bool blanca, Coordenada pos, wstring simbolo)
-    :esBlanca(blanca), posicion(pos), simbolo(simbolo)
+    :esBlanca(blanca), posicion(pos), simbolo(simbolo), seHaMovido(false)
 {
 }
 

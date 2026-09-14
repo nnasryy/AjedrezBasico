@@ -12,7 +12,7 @@ protected:
     bool esBlanca;
     Coordenada posicion;
     wstring simbolo;
-    bool seHaMovido;
+    bool seHaMovido = false;
     //Unicode ♔♜
 
 public:
