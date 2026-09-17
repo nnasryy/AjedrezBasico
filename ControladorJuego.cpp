@@ -155,6 +155,7 @@ void ControladorJuego::realizarMovimiento()
         promocion = (eleccion == 2) ? 'C' : 'T';
     }
 
+    bool estabaEnJaqueAntes = tablero.estaEnJaque(turnoBlanco);
     Pieza* piezaEnDestino = tablero.getPiezaEn(destino);
     bool seCapturoRey = (piezaEnDestino != nullptr && piezaEnDestino->getTipo() == 'R');
     bool huboCaptura = (piezaEnDestino != nullptr);
@@ -198,7 +199,12 @@ void ControladorJuego::realizarMovimiento()
             wcout << L"\n  > ¡JAQUE al Rey " << (turnoBlanco ? L"Blanco" : L"Negro") << L"!\n";
         }
     } else {
-        wcout << L"\n  > Movimiento invalido, intenta de nuevo.\n";
+        if (estabaEnJaqueAntes) {
+            wcout << L"\n  > Tu Rey esta en jaque. Debes mover el Rey, bloquear "
+                  << L"el ataque, o capturar la pieza que amenaza.\n";
+        } else {
+            wcout << L"\n  > Movimiento invalido, intenta de nuevo.\n";
+        }
     }
 }
 

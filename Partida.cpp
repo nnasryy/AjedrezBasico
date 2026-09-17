@@ -10,6 +10,8 @@
 
 using namespace std;
 
+const char DELIMITADOR = ';';
+
 Partida::Partida() {}
 Partida::~Partida() {}
 
@@ -17,17 +19,17 @@ void Partida::guardarPartida(Tablero &tablero, bool turnoBlanco, string nombreBl
 {
     ofstream archivo(nombreArchivo);
 
-    archivo << nombreBlancas << "\n";
-    archivo << nombreNegras << "\n";
-    archivo << (turnoBlanco ? "BLANCAS" : "NEGRAS") << "\n";
+    // primera linea: nombres y turno, usando el mismo delimitador que las piezas
+    archivo << nombreBlancas << DELIMITADOR << nombreNegras << DELIMITADOR
+            << (turnoBlanco ? "BLANCAS" : "NEGRAS") << "\n";
 
     for (int f = 0; f < 8; f++) {
         for (int c = 0; c < 8; c++) {
             Pieza* p = tablero.getPiezaEn(Coordenada(f, c));
             if (p != nullptr) {
-                archivo << p->getTipo() << ";"
-                        << (p->getEsBlanca() ? "B" : "N") << ";"
-                        << f << ";" << c << "\n";
+                archivo << p->getTipo() << DELIMITADOR
+                        << (p->getEsBlanca() ? "B" : "N") << DELIMITADOR
+                        << f << DELIMITADOR << c << "\n";
             }
         }
     }
@@ -44,24 +46,35 @@ bool Partida::cargarPartida(Tablero &tablero, bool &turnoBlanco, string &nombreB
 
     tablero.vaciarTablero();
 
+    string primeraLinea;
+    if (!getline(archivo, primeraLinea)) {
+        return false;
+    }
+
+    stringstream encabezado(primeraLinea);
+    string turnoStr;
+
+    getline(encabezado, nombreBlancas, DELIMITADOR);
+    getline(encabezado, nombreNegras, DELIMITADOR);
+    getline(encabezado, turnoStr, DELIMITADOR);
+
+    if (nombreBlancas.empty() || nombreNegras.empty() || turnoStr.empty()) {
+        return false; // encabezado corrupto o incompleto
+    }
+
+    turnoBlanco = (turnoStr == "BLANCAS");
+
     string linea;
-
-    if (!getline(archivo, nombreBlancas)) return false;
-    if (!getline(archivo, nombreNegras)) return false;
-
-    if (!getline(archivo, linea)) return false;
-    turnoBlanco = (linea == "BLANCAS");
-
     while (getline(archivo, linea)) {
         if (linea.empty()) continue;
 
         stringstream ss(linea);
         string tipo, color, filaStr, colStr;
 
-        getline(ss, tipo, ';');
-        getline(ss, color, ';');
-        getline(ss, filaStr, ';');
-        getline(ss, colStr, ';');
+        getline(ss, tipo, DELIMITADOR);
+        getline(ss, color, DELIMITADOR);
+        getline(ss, filaStr, DELIMITADOR);
+        getline(ss, colStr, DELIMITADOR);
 
         if (tipo.empty() || filaStr.empty() || colStr.empty()) continue;
 
@@ -95,7 +108,7 @@ void Partida::listarPartidas(HistorialMovimientos &listado)
 {
     for (const auto &entrada : filesystem::directory_iterator(".")) {
         if (!entrada.is_regular_file()) {
-            continue; // ignora carpetas, solo interesan archivos
+            continue;
         }
 
         string nombreArchivo = entrada.path().filename().string();
@@ -109,7 +122,8 @@ void Partida::listarPartidas(HistorialMovimientos &listado)
         }
     }
 }
-bool Partida::eliminarPartida(std::string nombreArchivo)
+
+bool Partida::eliminarPartida(string nombreArchivo)
 {
-    return std::filesystem::remove(nombreArchivo);
+    return filesystem::remove(nombreArchivo);
 }

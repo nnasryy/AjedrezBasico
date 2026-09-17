@@ -80,6 +80,9 @@ bool Tablero::moverPieza(Coordenada origen, Coordenada destino, char promocionEl
     if (!pieza->esMovimientoValido(destino, *this)) {
         return false;
     }
+    if (Jaque(origen, destino)) {
+        return false; // el movimiento es geometricamente valido, pero deja al propio Rey en jaque
+    }
 
     // Paso 1: si hay algo en el destino (captura), se libera ANTES de sobreescribir
     if (hayPiezaEn(destino)) {
@@ -218,6 +221,26 @@ bool Tablero::estaEnJaque(bool colorRey)
 
     return false; // ninguna pieza enemiga puede llegar hasta el Rey
 }
+
+bool Tablero::Jaque(Coordenada origen, Coordenada destino)
+{
+    Pieza* piezaOrigen = casillas[origen.fila][origen.columna];
+    Pieza* piezaDestino = casillas[destino.fila][destino.columna];
+    bool colorPropio = piezaOrigen->getEsBlanca();
+
+    // Simulacion: mueve los punteros temporalmente, SIN crear ni destruir memoria
+    casillas[destino.fila][destino.columna] = piezaOrigen;
+    casillas[origen.fila][origen.columna] = nullptr;
+
+    bool quedaEnJaque = estaEnJaque(colorPropio);
+
+    // Revierte la simulacion, dejando el tablero exactamente como estaba
+    casillas[origen.fila][origen.columna] = piezaOrigen;
+    casillas[destino.fila][destino.columna] = piezaDestino;
+
+    return quedaEnJaque;
+}
+
 bool Tablero::intentarEnroque(bool blancas, bool ladoRey)
 {
     int fila = blancas ? 0 : 7;

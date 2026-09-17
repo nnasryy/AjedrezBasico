@@ -24,6 +24,7 @@ public:
     void colocarPieza(Pieza* pieza, Coordenada pos);
     Coordenada buscarRey(bool blanca) const;
     bool estaEnJaque(bool colorRey);
+    bool Jaque(Coordenada origen, Coordenada destino);
     void vaciarTablero();
     bool intentarEnroque(bool blancas, bool ladoRey);
 };
