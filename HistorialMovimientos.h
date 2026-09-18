@@ -7,7 +7,7 @@ using namespace std;
 
 class HistorialMovimientos {
 private:
-    wstring* movimientos; // arreglo dinámico, mismo patrón que RankingJugadores
+    wstring* movimientos;
     int cantidad;
     int capacidad;
 
