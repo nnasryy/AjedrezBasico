@@ -22,6 +22,10 @@ int EntradaSalida::leerCoordenada(const wstring &mensaje)
         }
         wcin.ignore(numeric_limits<streamsize>::max(), L'\n');
 
+        if (valor == 0) {
+            return -1;
+        }
+
         if (valor < 1 || valor > 8) {
             wcout << L"  > El numero debe estar entre 1 y 8.\n";
             continue;
@@ -30,26 +34,29 @@ int EntradaSalida::leerCoordenada(const wstring &mensaje)
         return valor - 1;
     }
 }
-
 int EntradaSalida::leerColumna(const wstring &mensaje)
 {
-    wchar_t letra;
+    wstring entrada;
+
     while (true) {
         wcout << mensaje;
-        wcin >> letra;
+        wcin >> entrada;
 
-        if (wcin.fail()) {
+        if (entrada == L"0") {
+            return -1;
+        }
+
+        if (entrada.length() != 1 || wcin.fail()) {
             wcin.clear();
-            wcin.ignore(numeric_limits<streamsize>::max(), L'\n');
-            wcout << L"  > Entrada invalida. Ingresa una letra de la a a la h.\n";
+            wcin.ignore(1000, L'\n');
+            wcout << L"  > Entrada invalida. Ingresa una letra de la a a la h, o 0 para reiniciar.\n";
             continue;
         }
-        wcin.ignore(numeric_limits<streamsize>::max(), L'\n');
 
-        letra = towlower(letra);
+        wchar_t letra = towlower(entrada[0]);
 
         if (letra < L'a' || letra > L'h') {
-            wcout << L"  > La columna debe estar entre a y h.\n";
+            wcout << L"  > La columna debe estar entre a y h, o 0 para reiniciar.\n";
             continue;
         }
 
@@ -158,16 +165,53 @@ void EntradaSalida::mostrarMenuPrincipal()
 void EntradaSalida::mostrarInstrucciones()
 {
     wcout << L"\n";
-    wcout << L"------------------------------------------\n";
-    wcout << L"  COMO JUGAR\n";
-    wcout << L"------------------------------------------\n";
-    wcout << L"  - Para mover: indica fila y columna de\n";
-    wcout << L"    origen, luego fila y columna de destino.\n";
+    wcout << L"==============================================\n";
+    wcout << L"              COMO JUGAR - AJEDREZ\n";
+    wcout << L"==============================================\n\n";
+
+    wcout << L"  MOVIMIENTOS BASICOS\n";
+    wcout << L"  ------------------------------------------\n";
+    wcout << L"  - Escribe 'm' para mover una pieza.\n";
+    wcout << L"  - Indica fila y columna de origen, luego\n";
+    wcout << L"    fila y columna de destino.\n";
     wcout << L"  - Filas: numeros del 1 al 8.\n";
     wcout << L"  - Columnas: letras de la a a la h.\n";
-    wcout << L"  - Para enrocar: mueve tu Rey 2 casillas\n";
-    wcout << L"    hacia una de tus Torres.\n";
-    wcout << L"  - Escribe 'o' en vez de mover para ver\n";
-    wcout << L"    las opciones de la partida.\n";
-    wcout << L"------------------------------------------\n\n";
+    wcout << L"  - Escribe 0 en cualquier momento para\n";
+    wcout << L"    reiniciar o cancelar el movimiento.\n\n";
+
+    wcout << L"  ENROQUE\n";
+    wcout << L"  ------------------------------------------\n";
+    wcout << L"  - Mueve tu Rey 2 casillas hacia una de tus\n";
+    wcout << L"    Torres para enrocar automaticamente.\n";
+    wcout << L"  - Enroque corto: hacia el lado mas cercano\n";
+    wcout << L"    (ej. Rey de e1 a g1).\n";
+    wcout << L"  - Enroque largo: hacia el lado mas lejano\n";
+    wcout << L"    (ej. Rey de e1 a c1).\n";
+    wcout << L"  - Solo funciona si ni el Rey ni esa Torre\n";
+    wcout << L"    se han movido antes, el camino esta\n";
+    wcout << L"    libre, y no estas en jaque.\n\n";
+
+    wcout << L"  PROMOCION DE PEON\n";
+    wcout << L"  ------------------------------------------\n";
+    wcout << L"  - Al llegar a la ultima fila, el juego te\n";
+    wcout << L"    preguntara a que pieza quieres coronar\n";
+    wcout << L"    tu peon (Torre o Caballo).\n\n";
+
+    wcout << L"  JAQUE\n";
+    wcout << L"  ------------------------------------------\n";
+    wcout << L"  - El juego detecta y avisa cuando tu Rey\n";
+    wcout << L"    esta en jaque.\n";
+    wcout << L"  - No se permite ningun movimiento que deje\n";
+    wcout << L"    (o mantenga) a tu propio Rey en jaque.\n\n";
+
+    wcout << L"  OTRAS OPCIONES\n";
+    wcout << L"  ------------------------------------------\n";
+    wcout << L"  - Escribe 'o' en vez de mover para ver el\n";
+    wcout << L"    menu de opciones: guardar, ver historial,\n";
+    wcout << L"    declarar empate o salir.\n";
+    wcout << L"==============================================\n\n";
+}
+void EntradaSalida::limpiarPantalla()
+{
+    wcout << L"\033[2J\033[H";
 }

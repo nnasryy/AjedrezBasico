@@ -19,7 +19,7 @@ void Partida::guardarPartida(Tablero &tablero, bool turnoBlanco, string nombreBl
 {
     ofstream archivo(nombreArchivo);
 
-    // primera linea: nombres y turno, usando el mismo delimitador que las piezas
+
     archivo << nombreBlancas << DELIMITADOR << nombreNegras << DELIMITADOR
             << (turnoBlanco ? "BLANCAS" : "NEGRAS") << "\n";
 

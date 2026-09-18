@@ -17,5 +17,6 @@ public:
     static wstring coordenadaATexto(Coordenada c);
     static void mostrarMenuPrincipal();
     static void mostrarInstrucciones();
+    static void limpiarPantalla();
 };
 #endif // ENTRADASALIDA_H

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <cwctype>
 #include <cmath>
+#include "EntradaSalida.h"
 
 using namespace std;
 
@@ -24,6 +25,7 @@ void ControladorJuego::guardarPartidaActual()
 
 void ControladorJuego::mostrarEstadoPartida()
 {
+    EntradaSalida::limpiarPantalla();
     wcout << L"\n";
     wcout << L"Capturadas (Blancas): ";
     if (capturadasBlancas.getCantidad() == 0) {
@@ -126,10 +128,28 @@ bool ControladorJuego::intentarEnroque(Coordenada origen, Coordenada destino)
 
 void ControladorJuego::realizarMovimiento()
 {
-    int fo = EntradaSalida::leerCoordenada(L"Fila origen (1-8): ");
-    int co = EntradaSalida::leerColumna(L"Columna origen (a-h): ");
-    int fd = EntradaSalida::leerCoordenada(L"Fila destino (1-8): ");
-    int cd = EntradaSalida::leerColumna(L"Columna destino (a-h): ");
+    int fo, co, fd, cd;
+
+    wcout << L"\n";
+
+    while (true) {
+        fo = EntradaSalida::leerCoordenada(L"  Fila origen (1-8, 0 para reiniciar): ");
+        if (fo == -1) { wcout << L"\n  > Movimiento cancelado.\n"; return; }
+
+        co = EntradaSalida::leerColumna(L"  Columna origen (a-h, 0 para reiniciar): ");
+        if (co == -1) continue;
+
+        fd = EntradaSalida::leerCoordenada(L"  Fila destino (1-8, 0 para reiniciar): ");
+        if (fd == -1) continue;
+
+        cd = EntradaSalida::leerColumna(L"  Columna destino (a-h, 0 para reiniciar): ");
+        if (cd == -1) continue;
+
+        break;
+    }
+
+    wcout << L"\n";
+
 
     Coordenada origen(fo, co);
     Coordenada destino(fd, cd);
@@ -211,6 +231,9 @@ void ControladorJuego::realizarMovimiento()
 void ControladorJuego::jugar()
 {
     EntradaSalida::mostrarInstrucciones();
+    wcout << L"  Presiona Enter para comenzar...";
+    wcin.get();
+
 
     while (!salirPartida) {
         mostrarEstadoPartida();
