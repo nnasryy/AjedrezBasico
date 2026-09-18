@@ -1,0 +1,27 @@
+name: Compilar AjedrezBasico
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  compilacion:
+    name: Compilar en ${{ matrix.sistema }}
+    runs-on: ${{ matrix.sistema }}
+
+    strategy:
+      matrix:
+        sistema: [windows-latest, ubuntu-latest, macos-latest]
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Instalar CMake
+        uses: lukka/get-cmake@latest
+
+      - name: Configurar proyecto
+        run: cmake -S . -B build
+
+      - name: Compilar proyecto
+        run: cmake --build build
