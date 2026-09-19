@@ -3,7 +3,7 @@
 #include <fstream>
 #include <cwctype>
 #include <limits>
-
+#include <conio.h>
 
 using namespace std;
 
@@ -209,9 +209,34 @@ void EntradaSalida::mostrarInstrucciones()
     wcout << L"  - Escribe 'o' en vez de mover para ver el\n";
     wcout << L"    menu de opciones: guardar, ver historial,\n";
     wcout << L"    declarar empate o salir.\n";
-    wcout << L"==============================================\n\n";
+    wcout << L"==============================================\n";
+
+    esperarEnter();   // <-- un solo ENTER al final
+    limpiarPantalla(); // limpia para que la partida empiece en pantalla limpia
+}
+void EntradaSalida::esperarEnter()
+{
+    wcout << L"\n  [ Presiona ENTER para continuar... ]";
+    wcout.flush();
+
+#ifdef _WIN32
+    int tecla;
+    do {
+        tecla = _getwch();
+
+        if (tecla == 0 || tecla == 0xE0) {
+            _getwch();
+            tecla = 0;
+        }
+    } while (tecla != L'\r');   // '\r' es lo que devuelve ENTER
+#else
+    wstring linea;
+    getline(wcin, linea);
+#endif
+
+    wcout << L"\n";
 }
 void EntradaSalida::limpiarPantalla()
-{
+    {
     wcout << L"\033[2J\033[H";
 }

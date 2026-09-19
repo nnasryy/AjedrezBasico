@@ -18,5 +18,6 @@ public:
     static void mostrarMenuPrincipal();
     static void mostrarInstrucciones();
     static void limpiarPantalla();
+    static void esperarEnter();
 };
 #endif // ENTRADASALIDA_H

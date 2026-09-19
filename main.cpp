@@ -67,6 +67,8 @@ int main()
 
             ControladorJuego juego(tablero, turnoBlanco, nombreBlancas, nombreNegras,
                                    historial, ranking, archivoPartida);
+
+EntradaSalida::mostrarInstrucciones();
             juego.jugar();
 
         } else if (opcionMenu == 2) {

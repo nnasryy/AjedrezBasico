@@ -215,7 +215,20 @@ void ControladorJuego::realizarMovimiento()
 
         turnoBlanco = !turnoBlanco;
 
-        if (tablero.estaEnJaque(turnoBlanco)) {
+        if (tablero.esJaqueMate(turnoBlanco)) {
+            wstring ganador = !turnoBlanco ? nombreBlancas : nombreNegras;
+            wcout << L"\n  > ¡JAQUE MATE! " << ganador << L" gana la partida.\n";
+            string ganadorStr(ganador.begin(), ganador.end());
+            string perdedorStr = turnoBlanco
+                                     ? string(nombreNegras.begin(), nombreNegras.end())
+                                     : string(nombreBlancas.begin(), nombreBlancas.end());
+
+            ranking.actualizarResultado(ganadorStr, 'V');
+            ranking.actualizarResultado(perdedorStr, 'D');
+            ranking.guardarEnArchivo("ranking.txt");
+            salirPartida = true;
+            return;
+        } else if (tablero.estaEnJaque(turnoBlanco)) {
             wcout << L"\n  > ¡JAQUE al Rey " << (turnoBlanco ? L"Blanco" : L"Negro") << L"!\n";
         }
     } else {
@@ -230,11 +243,6 @@ void ControladorJuego::realizarMovimiento()
 
 void ControladorJuego::jugar()
 {
-    EntradaSalida::mostrarInstrucciones();
-    wcout << L"  Presiona Enter para comenzar...";
-    wcin.get();
-
-
     while (!salirPartida) {
         mostrarEstadoPartida();
 

@@ -285,6 +285,36 @@ bool Tablero::intentarEnroque(bool blancas, bool ladoRey)
 
     return true;
 }
+bool Tablero::esJaqueMate(bool colorRey)
+{
+    if (!estaEnJaque(colorRey)) {
+        return false;
+    }
+
+    for (int f1 = 0; f1 < 8; f1++) {
+        for (int c1 = 0; c1 < 8; c1++) {
+            Pieza* pieza = casillas[f1][c1];
+            if (pieza == nullptr || pieza->getEsBlanca() != colorRey) {
+                continue; // no es una pieza propia
+            }
+
+            Coordenada origen(f1, c1);
+
+            for (int f2 = 0; f2 < 8; f2++) {
+                for (int c2 = 0; c2 < 8; c2++) {
+                    Coordenada destino(f2, c2);
+
+                    if (pieza->esMovimientoValido(destino, *this)
+                        && !Jaque(origen, destino)) {
+                        return false;
+                    }
+                }
+            }
+        }
+    }
+
+    return true;
+}
 
 void Tablero::vaciarTablero()
 {

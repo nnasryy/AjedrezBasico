@@ -25,6 +25,7 @@ public:
     Coordenada buscarRey(bool blanca) const;
     bool estaEnJaque(bool colorRey);
     bool Jaque(Coordenada origen, Coordenada destino);
+    bool esJaqueMate(bool colorRey);
     void vaciarTablero();
     bool intentarEnroque(bool blancas, bool ladoRey);
 };
