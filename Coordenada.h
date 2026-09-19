@@ -18,7 +18,4 @@ struct Coordenada{
 };
 
 #endif // COORDENADA_H
-/*Este es un struct con un constructor que da valores por defecto
- * inválidos, para poder detectar coordenadas vacias,
- *
-*/
+

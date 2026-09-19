@@ -59,7 +59,7 @@ bool Partida::cargarPartida(Tablero &tablero, bool &turnoBlanco, string &nombreB
     getline(encabezado, turnoStr, DELIMITADOR);
 
     if (nombreBlancas.empty() || nombreNegras.empty() || turnoStr.empty()) {
-        return false; // encabezado corrupto o incompleto
+        return false;
     }
 
     turnoBlanco = (turnoStr == "BLANCAS");

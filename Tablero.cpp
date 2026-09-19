@@ -9,7 +9,7 @@ using namespace std;
 
 Tablero::Tablero()
 {
-    //crear las casillas vacias
+
     for(int f=0; f < 8; f++){
         for(int c=0; c < 8; c++){
             casillas[f][c]=nullptr;
@@ -28,23 +28,23 @@ Tablero::~Tablero()
 }
 void Tablero::inicializar()
 {
-    // Torres
+
     casillas[0][0] = new Torre(true, Coordenada(0,0));
     casillas[0][7] = new Torre(true, Coordenada(0,7));
     casillas[7][0] = new Torre(false, Coordenada(7,0));
     casillas[7][7] = new Torre(false, Coordenada(7,7));
 
-    // Caballos
+
     casillas[0][1] = new Caballo(true, Coordenada(0,1));
     casillas[0][6] = new Caballo(true, Coordenada(0,6));
     casillas[7][1] = new Caballo(false, Coordenada(7,1));
     casillas[7][6] = new Caballo(false, Coordenada(7,6));
 
-    // Reyes
+
     casillas[0][4] = new Rey(true, Coordenada(0,4));
     casillas[7][4] = new Rey(false, Coordenada(7,4));
 
-    // Peones
+
     for (int c = 0; c < 8; c++) {
         casillas[1][c] = new Peon(true, Coordenada(1,c));
         casillas[6][c] = new Peon(false, Coordenada(6,c));
@@ -67,8 +67,7 @@ bool Tablero::esEnemiga(Coordenada c, bool colorPropio) const
     if (p == nullptr) return false;
     return p->getEsBlanca() != colorPropio;
 }
-//como parametro el struct que tiene fila y columna coordenada
-//y evaluaremos el origen y el destino para saber si se puede mover
+
 bool Tablero::moverPieza(Coordenada origen, Coordenada destino, char promocionElegida)
 {
     Pieza* pieza = getPiezaEn(origen);
@@ -81,23 +80,20 @@ bool Tablero::moverPieza(Coordenada origen, Coordenada destino, char promocionEl
         return false;
     }
     if (Jaque(origen, destino)) {
-        return false; // el movimiento es geometricamente valido, pero deja al propio Rey en jaque
+        return false;
     }
 
-    // Paso 1: si hay algo en el destino (captura), se libera ANTES de sobreescribir
     if (hayPiezaEn(destino)) {
         delete casillas[destino.fila][destino.columna];
-        casillas[destino.fila][destino.columna] = nullptr; // evita punteros colgantes
+        casillas[destino.fila][destino.columna] = nullptr;
     }
 
-    // Paso 2: mover la pieza al destino y limpiar el origen
     casillas[destino.fila][destino.columna] = pieza;
     casillas[origen.fila][origen.columna] = nullptr;
 
     pieza->setPosicion(destino);
     pieza->marcarComoMovida();
 
-    // Paso 3: coronación, SOLO después de que el movimiento y la captura ya se resolvieron
     if (pieza->getTipo() == 'P') {
         int filaFinal = pieza->getEsBlanca() ? 7 : 0;
 
@@ -108,7 +104,7 @@ bool Tablero::moverPieza(Coordenada origen, Coordenada destino, char promocionEl
             if (promocionElegida == 'C') {
                 nuevaPieza = new Caballo(color, destino);
             } else {
-                nuevaPieza = new Torre(color, destino); // por defecto 'T', o cualquier valor no reconocido
+                nuevaPieza = new Torre(color, destino);
             }
 
             delete casillas[destino.fila][destino.columna];
@@ -122,9 +118,9 @@ bool Tablero::moverPieza(Coordenada origen, Coordenada destino, char promocionEl
 void Tablero::asignarCasilla(Pieza** casilla, Pieza* nuevaPieza)
 {
     if (*casilla != nullptr) {
-        delete *casilla; // libera lo que había antes en esa casilla, si algo había
+        delete *casilla;
     }
-    *casilla = nuevaPieza; // coloca la nueva pieza (o nullptr) en la casilla real
+    *casilla = nuevaPieza;
 }
 
 
@@ -136,11 +132,11 @@ void Tablero::imprimir() const
             bool esClara = (f + c) % 2 == 0;
 
             if (esClara) {
-                wcout << L"\033[48;2;195;195;199m"; // fondo #c3c3c7
+                wcout << L"\033[48;2;195;195;199m";
             } else {
-                wcout << L"\033[48;2;94;93;94m";    // fondo #5e5d5e
+                wcout << L"\033[48;2;94;93;94m";
             }
-            wcout << L"\033[30m"; // texto en negro para contraste
+            wcout << L"\033[30m";
 
             Pieza* p = casillas[f][c];
             if (p == nullptr) {
@@ -149,7 +145,7 @@ void Tablero::imprimir() const
                 wcout << p->getSimbolo() << L" ";
             }
 
-            wcout << L"\033[0m"; // reinicia el color para no manchar el resto de la línea
+            wcout << L"\033[0m";
         }
         wcout << endl;
     }
@@ -214,12 +210,12 @@ bool Tablero::estaEnJaque(bool colorRey)
             }
 
             if (p->esMovimientoValido(posRey, *this)) {
-                return true; // encontramos una amenaza real
+                return true;
             }
         }
     }
 
-    return false; // ninguna pieza enemiga puede llegar hasta el Rey
+    return false;
 }
 
 bool Tablero::Jaque(Coordenada origen, Coordenada destino)
@@ -228,13 +224,11 @@ bool Tablero::Jaque(Coordenada origen, Coordenada destino)
     Pieza* piezaDestino = casillas[destino.fila][destino.columna];
     bool colorPropio = piezaOrigen->getEsBlanca();
 
-    // Simulacion: mueve los punteros temporalmente, SIN crear ni destruir memoria
     casillas[destino.fila][destino.columna] = piezaOrigen;
     casillas[origen.fila][origen.columna] = nullptr;
 
     bool quedaEnJaque = estaEnJaque(colorPropio);
 
-    // Revierte la simulacion, dejando el tablero exactamente como estaba
     casillas[origen.fila][origen.columna] = piezaOrigen;
     casillas[destino.fila][destino.columna] = piezaDestino;
 
@@ -262,12 +256,12 @@ bool Tablero::intentarEnroque(bool blancas, bool ladoRey)
     int paso = ladoRey ? 1 : -1;
     for (int c = 4 + paso; c != columnaTorre; c += paso) {
         if (hayPiezaEn(Coordenada(fila, c))) {
-            return false; // hay algo en medio, no se puede enrocar
+            return false;
         }
     }
 
     if (estaEnJaque(blancas)) {
-        return false; // no se puede enrocar estando en jaque
+        return false;
     }
 
     int columnaNuevaRey = ladoRey ? 6 : 2;
@@ -295,7 +289,7 @@ bool Tablero::esJaqueMate(bool colorRey)
         for (int c1 = 0; c1 < 8; c1++) {
             Pieza* pieza = casillas[f1][c1];
             if (pieza == nullptr || pieza->getEsBlanca() != colorRey) {
-                continue; // no es una pieza propia
+                continue;
             }
 
             Coordenada origen(f1, c1);

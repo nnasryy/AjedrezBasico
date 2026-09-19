@@ -13,7 +13,6 @@ protected:
     Coordenada posicion;
     wstring simbolo;
     bool seHaMovido = false;
-    //Unicode ♔♜
 
 public:
     Pieza(bool blanca, Coordenada pos, wstring simbolo);

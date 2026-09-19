@@ -7,24 +7,24 @@ using namespace std;
 
 class RankingJugadores {
 private:
-    Jugador* jugadores;   // arreglo dinámico
-    int cantidad;         // cuántos jugadores
-    int capacidad;        // cuánto espacio hay reservado
+    Jugador* jugadores;
+    int cantidad;
+    int capacidad;
 
-    void crecerSiNecesario(); // duplica el arreglo si se llena
+    void crecerSiNecesario();
     int buscarPosicionPorNombre(string nombre) const;
 
 public:
     RankingJugadores();
     ~RankingJugadores();
 
-    void registrarJugador(string nombre);              // Create
-    void cargarDesdeArchivo(string nombreArchivo);      // Read (al iniciar)
-    void guardarEnArchivo(string nombreArchivo) const;  // persistencia
-    void actualizarResultado(string nombre, char resultado); // Update ('V','D','E')
-    bool eliminarJugador(string nombre);                // Delete
+    void registrarJugador(string nombre);
+    void cargarDesdeArchivo(string nombreArchivo);
+    void guardarEnArchivo(string nombreArchivo) const;
+    void actualizarResultado(string nombre, char resultado);
+    bool eliminarJugador(string nombre);
 
-    void ordenarPorVictorias(); // Burbuja
+    void ordenarPorVictorias();
     void imprimirRanking() const;
 };
 

@@ -63,13 +63,13 @@ void RankingJugadores::cargarDesdeArchivo(string nombreArchivo)
 {
     ifstream archivo(nombreArchivo);
     if (!archivo.is_open()) {
-        return; // no hay archivo todavía, es normal la primera vez que se ejecuta el programa
+        return;
     }
 
     string linea;
     while (getline(archivo, linea)) {
         if (linea.empty()) {
-            continue; // ignora líneas vacías
+            continue;
         }
 
         stringstream ss(linea);
@@ -81,7 +81,7 @@ void RankingJugadores::cargarDesdeArchivo(string nombreArchivo)
         getline(ss, eStr, DELIMITADOR);
 
         if (nombre.empty() || vStr.empty() || dStr.empty() || eStr.empty()) {
-            continue; // línea incompleta o corrupta, la salta sin tronar el programa
+            continue;
         }
 
         try {
@@ -93,7 +93,7 @@ void RankingJugadores::cargarDesdeArchivo(string nombreArchivo)
             jugadores[cantidad] = Jugador(nombre, victorias, derrotas, empates);
             cantidad++;
         } catch (const exception &e) {
-            continue; // el texto no era un número válido, se ignora esa línea
+            continue;
         }
     }
     archivo.close();
@@ -101,7 +101,7 @@ void RankingJugadores::cargarDesdeArchivo(string nombreArchivo)
 
 void RankingJugadores::guardarEnArchivo(string nombreArchivo) const
 {
-    ofstream archivo(nombreArchivo); // trunca y reescribe todo, como ios::trunc
+    ofstream archivo(nombreArchivo);
 
     for (int i = 0; i < cantidad; i++) {
         archivo << jugadores[i].getNombre() << DELIMITADOR
@@ -123,7 +123,7 @@ void RankingJugadores::actualizarResultado(string nombre, char resultado)
     else if (resultado == 'D') jugadores[pos].registrarDerrota();
     else if (resultado == 'E') jugadores[pos].registrarEmpate();
 
-    guardarEnArchivo("ranking.txt"); // sincroniza con disco inmediatamente
+    guardarEnArchivo("ranking.txt");
 }
 
 bool RankingJugadores::eliminarJugador(string nombre)

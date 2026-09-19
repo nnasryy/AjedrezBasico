@@ -16,7 +16,6 @@ bool Rey::esMovimientoValido(Coordenada destino, Tablero &tablero) const
     int difColumna = destino.columna - posicion.columna;
 
     if (abs(difFila) <= 1 && abs(difColumna) <= 1) {
-        // no puede capturar una pieza de su propio color
         if (tablero.hayPiezaEn(destino) && !tablero.esEnemiga(destino, esBlanca)) {
             return false;
         }

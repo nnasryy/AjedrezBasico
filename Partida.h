@@ -12,8 +12,8 @@ public:
 
     void guardarPartida(Tablero &tablero, bool turnoBlanco, string nombreBlancas, string nombreNegras, string nombreArchivo);
     bool cargarPartida(Tablero &tablero, bool &turnoBlanco, string &nombreBlancas, string &nombreNegras, string nombreArchivo);
-    void listarPartidas(HistorialMovimientos &listado);                                                              // Read (listado)
-    bool eliminarPartida(string nombreArchivo);                                     // Delete
+    void listarPartidas(HistorialMovimientos &listado);
+    bool eliminarPartida(string nombreArchivo);
 };
 
 #endif //PARTTIDA_H

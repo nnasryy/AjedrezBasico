@@ -113,7 +113,7 @@ wstring EntradaSalida::leerUsername(const wstring &mensaje)
     while (true) {
         wcout << mensaje;
         wcin >> username;
-        wcin.ignore(numeric_limits<streamsize>::max(), L'\n'); // descarta cualquier resto (ej. segunda palabra)
+        wcin.ignore(numeric_limits<streamsize>::max(), L'\n');
 
         if (!esUsernameValido(username)) {
             wcout << L"  > Username invalido. Usa solo letras, numeros, '_' o '.'\n";
@@ -212,8 +212,8 @@ void EntradaSalida::mostrarInstrucciones()
     wcout << L"    declarar empate o salir.\n";
     wcout << L"==============================================\n";
 
-    esperarEnter();   // <-- un solo ENTER al final
-    limpiarPantalla(); // limpia para que la partida empiece en pantalla limpia
+    esperarEnter();
+    limpiarPantalla();
 }
 void EntradaSalida::esperarEnter()
 {
@@ -229,7 +229,7 @@ void EntradaSalida::esperarEnter()
             _getwch();
             tecla = 0;
         }
-    } while (tecla != L'\r');   // '\r' es lo que devuelve ENTER
+    } while (tecla != L'\r');
 #else
     wstring linea;
     getline(wcin, linea);
