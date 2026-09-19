@@ -3,8 +3,9 @@
 #include <fstream>
 #include <cwctype>
 #include <limits>
+#ifdef _WIN32
 #include <conio.h>
-
+#endif
 using namespace std;
 
 int EntradaSalida::leerCoordenada(const wstring &mensaje)
